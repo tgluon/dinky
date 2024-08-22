@@ -172,6 +172,7 @@ public abstract class KubernetsOperatorGateway extends KubernetesGateway {
         }
 
         flinkDeploymentSpec.setImage(image);
+        flinkDeploymentSpec.setImagePullPolicy("IfNotPresent");
 
         flinkDeploymentSpec.setFlinkConfiguration(flinkConfig.getConfiguration());
         flinkDeployment.setSpec(flinkDeploymentSpec);

@@ -102,7 +102,7 @@ start() {
   assertIsInputVersion
   updatePid
   if [ -z "$pid" ]; then
-    nohup java ${PARAMS_OPT} ${JVM_OPTS} ${OOM_OPT} ${GC_OPT} ${PARAMS_OPT} -Xverify:none -cp "${CLASS_PATH}" org.dinky.Dinky ${JAR_PARAMS_OPT}  > ${DINKY_LOG_PATH}/dinky-start.log 2>&1 &
+    nohup java ${PARAMS_OPT} ${JVM_OPTS} ${OOM_OPT} ${GC_OPT} ${PARAMS_OPT} -Xverify:none -cp "${CLASS_PATH}" -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 org.dinky.Dinky ${JAR_PARAMS_OPT}  > ${DINKY_LOG_PATH}/dinky-start.log 2>&1 &
     echo $! >"${PID_PATH}"/${PID_FILE}
     echo "........................................Start Dinky Done........................................"
     echo "current log path : ${DINKY_LOG_PATH}/dinky-start.log , you can execute tail -fn1000 ${DINKY_LOG_PATH}/dinky-start.log to watch the log"
@@ -115,7 +115,7 @@ startOnPending() {
   assertIsInputVersion
   updatePid
   if [ -z "$pid" ]; then
-    java ${PARAMS_OPT} ${JVM_OPTS} ${OOM_OPT} ${GC_OPT} ${PARAMS_OPT} -Xverify:none -cp "${CLASS_PATH}" org.dinky.Dinky  ${JAR_PARAMS_OPT}
+    java ${PARAMS_OPT} ${JVM_OPTS} ${OOM_OPT} ${GC_OPT} ${PARAMS_OPT} -Xverify:none -cp "${CLASS_PATH}" -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 org.dinky.Dinky  ${JAR_PARAMS_OPT}
     echo "........................................Start Dinky Successfully........................................"
   else
     echo "Dinky pid $pid is in ${PID_PATH}/${PID_FILE}, Please stop first !!!"
