@@ -33,12 +33,18 @@ import java.util.List;
 import java.util.Map;
 
 public class CodeRuleEngine extends ScalarFunction {
-    Map<String, List<String>> map = new HashMap<>();
+    private static final Map<String, List<String>> map = new HashMap<>();
 
+    /**
+     * 初始化加载评论规则维表
+     *
+     * @param context
+     * @throws Exception
+     */
     @Override
     public void open(FunctionContext context) throws Exception {
         final String URL =
-                "jdbc:mysql://mysql.middle-server:3306/crawler?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8";
+                "jdbc:mysql://mysql.middle-server:3306/dim?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8";
         final String USERNAME = "root";
         final String PASSWORD = "bigdata123";
         Connection connection = null;
@@ -48,7 +54,7 @@ public class CodeRuleEngine extends ScalarFunction {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            String sql = "select platform,keyword from comment_keyword";
+            String sql = "select platform,keyword from dim_comment_keyword";
             pstmt = connection.prepareStatement(sql);
             rs = pstmt.executeQuery();
             // 遍历加入
@@ -78,6 +84,13 @@ public class CodeRuleEngine extends ScalarFunction {
         }
     }
 
+    /**
+     * 使用规则匹配评论
+     *
+     * @param platform 平台
+     * @param context  评论
+     * @return
+     */
     public String eval(String platform, String context) {
         List<String> keywords = map.get(platform);
         String result = "0#@#noth";
