@@ -32,8 +32,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CodeRuleEngine extends ScalarFunction {
-    private static final Map<String, List<String>> map = new HashMap<>();
+public class AreaIndustryRuleEngine extends ScalarFunction {
+    private static final Map<String, List<String>> DIM_AREA_MAP = new HashMap<>();
+    private static final Map<String, List<String>> DIM_INDUSTRY_MAP = new HashMap<>();
 
     /**
      * 初始化加载评论规则维表
@@ -54,21 +55,41 @@ public class CodeRuleEngine extends ScalarFunction {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            String sql = "select platform,keyword from dim_comment_keyword";
+
+            // 地域
+            String sql = "select platform,area from dim_area";
             pstmt = connection.prepareStatement(sql);
             rs = pstmt.executeQuery();
             // 遍历加入
             while (rs.next()) {
                 String platform = rs.getString(1);
-                String keyword = rs.getString(2);
-                if (map.containsKey(platform)) {
-                    map.get(platform).add(keyword);
+                String area = rs.getString(2);
+                if (DIM_AREA_MAP.containsKey(platform)) {
+                    DIM_AREA_MAP.get(platform).add(area);
                 } else {
                     List<String> list = new ArrayList<>();
-                    list.add(keyword);
-                    map.put(platform, list);
+                    list.add(area);
+                    DIM_AREA_MAP.put(platform, list);
                 }
             }
+
+            // 行业
+            String industrySql = "select platform,industry from dim_industry";
+            pstmt = connection.prepareStatement(industrySql);
+            rs = pstmt.executeQuery();
+            // 遍历加入
+            while (rs.next()) {
+                String platform = rs.getString(1);
+                String industry = rs.getString(2);
+                if (DIM_INDUSTRY_MAP.containsKey(platform)) {
+                    DIM_INDUSTRY_MAP.get(platform).add(industry);
+                } else {
+                    List<String> list = new ArrayList<>();
+                    list.add(industry);
+                    DIM_INDUSTRY_MAP.put(platform, list);
+                }
+            }
+
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (SQLException e) {
@@ -88,19 +109,31 @@ public class CodeRuleEngine extends ScalarFunction {
      * 使用规则匹配评论
      *
      * @param platform 平台
-     * @param context  评论
+     * @param title    标题
      * @return
      */
-    public String eval(String platform, String context) {
-        List<String> keywords = map.get(platform);
-        String result = "0@#@noth";
-        for (String word : keywords) {
-            boolean contained = context.contains(word);
+    public String eval(String platform, String title) {
+        List<String> areaList = DIM_AREA_MAP.get(platform);
+        List<String> industryList = DIM_INDUSTRY_MAP.get(platform);
+        String areaResult = "north";
+        String industryResult = "noth";
+
+        // 行业
+        for (String industry : industryList) {
+            boolean contained = title.contains(industry);
             if (contained) {
-                result = "1" + "@#@" + word;
-                return result;
+                industryResult = industry;
+                break;
             }
         }
-        return result;
+        // 地域
+        for (String area : areaList) {
+            boolean contained = title.contains(area);
+            if (contained) {
+                areaResult = area;
+                break;
+            }
+        }
+        return industryResult + "@#@" + areaResult;
     }
 }
