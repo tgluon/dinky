@@ -31,10 +31,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class AreaIndustryRuleEngine extends ScalarFunction {
-    private static final Map<String, List<String>> DIM_AREA_MAP = new HashMap<>();
-    private static final Map<String, List<String>> DIM_INDUSTRY_MAP = new HashMap<>();
+    private static final Map<String, List<Map<String, String>>> DIM_AREA_MAP = new HashMap<>();
+    private static final Map<String, List<Map<String, String>>> DIM_INDUSTRY_MAP = new HashMap<>();
 
     /**
      * 初始化加载评论规则维表
@@ -57,35 +58,45 @@ public class AreaIndustryRuleEngine extends ScalarFunction {
             connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
 
             // 地域
-            String sql = "select platform,area from dim_area";
+            String sql = "select platform,keyword,area from dim_area";
             pstmt = connection.prepareStatement(sql);
             rs = pstmt.executeQuery();
             // 遍历加入
             while (rs.next()) {
                 String platform = rs.getString(1);
-                String area = rs.getString(2);
+                String keyword = rs.getString(2);
+                String area = rs.getString(3);
                 if (DIM_AREA_MAP.containsKey(platform)) {
-                    DIM_AREA_MAP.get(platform).add(area);
+                    Map<String, String> objMap = new HashMap<>();
+                    objMap.put(keyword, area);
+                    DIM_AREA_MAP.get(platform).add(objMap);
                 } else {
-                    List<String> list = new ArrayList<>();
-                    list.add(area);
+                    Map<String, String> objMap = new HashMap<>();
+                    objMap.put(keyword, area);
+                    List<Map<String, String>> list = new ArrayList<>();
+                    list.add(objMap);
                     DIM_AREA_MAP.put(platform, list);
                 }
             }
 
             // 行业
-            String industrySql = "select platform,industry from dim_industry";
+            String industrySql = "select platform,industry,keyword from dim_industry";
             pstmt = connection.prepareStatement(industrySql);
             rs = pstmt.executeQuery();
             // 遍历加入
             while (rs.next()) {
                 String platform = rs.getString(1);
-                String industry = rs.getString(2);
+                String keyword = rs.getString(2);
+                String industry = rs.getString(3);
                 if (DIM_INDUSTRY_MAP.containsKey(platform)) {
-                    DIM_INDUSTRY_MAP.get(platform).add(industry);
+                    Map<String, String> objMap = new HashMap<>();
+                    objMap.put(keyword, industry);
+                    DIM_INDUSTRY_MAP.get(platform).add(objMap);
                 } else {
-                    List<String> list = new ArrayList<>();
-                    list.add(industry);
+                    List<Map<String, String>> list = new ArrayList<>();
+                    Map<String, String> objMap = new HashMap<>();
+                    objMap.put(keyword, industry);
+                    list.add(objMap);
                     DIM_INDUSTRY_MAP.put(platform, list);
                 }
             }
@@ -113,25 +124,31 @@ public class AreaIndustryRuleEngine extends ScalarFunction {
      * @return
      */
     public String eval(String platform, String title) {
-        List<String> areaList = DIM_AREA_MAP.get(platform);
-        List<String> industryList = DIM_INDUSTRY_MAP.get(platform);
+        List<Map<String, String>> industryList = DIM_INDUSTRY_MAP.get(platform);
+        List<Map<String, String>> areaList = DIM_AREA_MAP.get(platform);
+        String industryResult = "north";
         String areaResult = "north";
-        String industryResult = "noth";
 
         // 行业
-        for (String industry : industryList) {
-            boolean contained = title.contains(industry);
-            if (contained) {
-                industryResult = industry;
-                break;
+        for (Map<String, String> map : industryList) {
+            Set<String> keySet = map.keySet();
+            for (String key : keySet) {
+                boolean contained = title.contains(key);
+                if (contained) {
+                    industryResult = map.get(key);
+                    break;
+                }
             }
         }
         // 地域
-        for (String area : areaList) {
-            boolean contained = title.contains(area);
-            if (contained) {
-                areaResult = area;
-                break;
+        for (Map<String, String> map : areaList) {
+            Set<String> keySet = map.keySet();
+            for (String key : keySet) {
+                boolean contained = title.contains(key);
+                if (contained) {
+                    areaResult = map.get(key);
+                    break;
+                }
             }
         }
         return industryResult + "@#@" + areaResult;

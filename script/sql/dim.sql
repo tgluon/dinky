@@ -16,11 +16,12 @@ DROP TABLE IF EXISTS dim_area;
 CREATE TABLE if not  EXISTS dim_area  (
                                                      id int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
     platform varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '平台',
+    keyword varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '关键词',
     area varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '地域',
     create_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
     update_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'update time',
     PRIMARY KEY (id) USING BTREE,
-    UNIQUE INDEX `keyword_un_idx1`(`platform`,`area`) USING BTREE
+    UNIQUE INDEX `keyword_un_idx1`(`platform`,`keyword`,`area`) USING BTREE
     ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '地域' ROW_FORMAT = Dynamic;
 
 
@@ -28,11 +29,12 @@ DROP TABLE IF EXISTS dim_industry;
 CREATE TABLE if not  EXISTS dim_industry  (
                                           id int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
     platform varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '平台',
+    keyword varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '关键词',
     industry varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '行业',
     create_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
     update_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'update time',
     PRIMARY KEY (id) USING BTREE,
-    UNIQUE INDEX `keyword_un_idx1`(`platform`,`industry`) USING BTREE
+    UNIQUE INDEX `keyword_un_idx1`(`platform`,`keyword`,`industry`) USING BTREE
     ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '地域' ROW_FORMAT = Dynamic;
 
 

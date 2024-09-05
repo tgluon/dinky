@@ -93,7 +93,7 @@ public class CodeRuleEngine extends ScalarFunction {
      */
     public String eval(String platform, String context) {
         List<String> keywords = map.get(platform);
-        String result = "0@#@noth";
+        String result = "0@#@north";
         for (String word : keywords) {
             boolean contained = context.contains(word);
             if (contained) {
