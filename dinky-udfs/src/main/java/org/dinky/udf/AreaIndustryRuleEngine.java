@@ -80,7 +80,7 @@ public class AreaIndustryRuleEngine extends ScalarFunction {
             }
 
             // 行业
-            String industrySql = "select platform,industry,keyword from dim_industry";
+            String industrySql = "select platform,keyword,industry from dim_industry";
             pstmt = connection.prepareStatement(industrySql);
             rs = pstmt.executeQuery();
             // 遍历加入
@@ -100,7 +100,6 @@ public class AreaIndustryRuleEngine extends ScalarFunction {
                     DIM_INDUSTRY_MAP.put(platform, list);
                 }
             }
-
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (SQLException e) {
