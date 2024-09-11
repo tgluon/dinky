@@ -32,4 +32,4 @@ from(
                                and dac.aweme_id=mmu.aweme_id
                                and dac.comment_id=mmu.comment_id
     )rs
-where mmu_platform is null
+where ip_location != '云南' and mmu_platform is null
